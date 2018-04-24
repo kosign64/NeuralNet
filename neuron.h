@@ -11,6 +11,7 @@ struct Connection
 {
     double weight;
     double deltaWeight;
+    vector<double> corrections;
 };
 
 class Neuron;
@@ -26,7 +27,7 @@ public:
     void feedForward(const Layer &prevLayer);
     void calcOutputGradient(double targetVal);
     void calcHiddenGradients(const Layer &nextLayer);
-    void updateInputWeights(Layer &prevLayer);
+    void calcInputWeightsUpdates(Layer &prevLayer, bool update);
     static void setEta(double newEta) {eta = newEta;}
     static void setAlpha(double newAlpha) {alpha = newAlpha;}
     vector <Connection> getWeights() const {return m_outputWeights;}

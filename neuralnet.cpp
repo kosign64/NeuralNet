@@ -65,7 +65,7 @@ void NeuralNet::feedForward(const vector<double> &inputVals)
     }
 }
 
-void NeuralNet::backProp(const vector<double> &targetVals)
+void NeuralNet::backProp(const vector<double> &targetVals, bool update)
 {
     assert(targetVals.size() == (m_layers.back().size() - 1));
 
@@ -125,12 +125,12 @@ void NeuralNet::backProp(const vector<double> &targetVals)
         const size_t layerSize = layer.size() - 1;
 #ifdef WITH_TBB
         parallel_for(size_t(0), layerSize, [&](size_t n){
-            layer[n].updateInputWeights(prevLayer);
+            layer[n].calcInputWeightsUpdates(prevLayer, update);
         });
 #else
         for(size_t n = 0; n < layerSize; ++n)
         {
-            layer[n].updateInputWeights(prevLayer);
+            layer[n].calcInputWeightsUpdates(prevLayer, update);
         }
 #endif
     }
@@ -147,7 +147,7 @@ void NeuralNet::getResults(vector<double> &resultVals) const
 }
 
 double NeuralNet::train(size_t iterations, double error,
-                        vector<array<vector<double>, 2>> &trainData)
+                        vector<array<vector<double>, 2>> &trainData, size_t batchSize)
 {
     const size_t size = trainData.size();
     double averageError = 0.0;
@@ -157,8 +157,13 @@ double NeuralNet::train(size_t iterations, double error,
         averageError = 0;
         for(size_t n = 0; n < size; ++n)
         {
+            bool update = false;
+            if(((n % batchSize) == 0) || (n == size - 1))
+            {
+                update = true;
+            }
             feedForward(trainData[n][0]);
-            backProp(trainData[n][1]);
+            backProp(trainData[n][1], update);
             averageError += m_error;
         }
         if((i % 30) == 0)

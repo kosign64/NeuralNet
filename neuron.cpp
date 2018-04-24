@@ -63,17 +63,29 @@ double Neuron::sumDow(const Layer &nextLayer) const
     return sum;
 }
 
-void Neuron::updateInputWeights(Layer &prevLayer)
+void Neuron::calcInputWeightsUpdates(Layer &prevLayer, bool update)
 {
     for(size_t n = 0; n < prevLayer.size(); ++n)
     {
         Neuron &neuron = prevLayer[n];
+        vector<double> &corrections = neuron.m_outputWeights[m_myIndex].corrections;
         double oldDeltaWeight = neuron.m_outputWeights[m_myIndex].deltaWeight;
 
         double newDeltaWeight = eta * neuron.m_outputVal * m_gradient +
                 alpha * oldDeltaWeight;
-        neuron.m_outputWeights[m_myIndex].deltaWeight = newDeltaWeight;
-        neuron.m_outputWeights[m_myIndex].weight += newDeltaWeight;
+        corrections.push_back(newDeltaWeight);
+        if(update)
+        {
+            double sum = 0;
+            for(const auto &c : corrections)
+            {
+                sum += c;
+            }
+            newDeltaWeight = sum / corrections.size();
+            neuron.m_outputWeights[m_myIndex].deltaWeight = newDeltaWeight;
+            neuron.m_outputWeights[m_myIndex].weight += newDeltaWeight;
+            corrections.clear();
+        }
     }
 }
 

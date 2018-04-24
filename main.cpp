@@ -12,7 +12,7 @@ int main()
     topology.push_back(1);
     topology.push_back(5);
     topology.push_back(1);
-    NeuralNet net(topology);
+    NeuralNet net(topology, 0.6);
 
     vector< vector<double> > inputs;
     vector< vector<double> > outputs;
@@ -25,10 +25,6 @@ int main()
         sinOut.push_back(sin((double)angle * M_PI / 180.));
         inputs.push_back(angleIn);
         outputs.push_back(sinOut);
-        if(angle == 30)
-        {
-            cout << "Angle 30: " << angleIn[0] << " " << sinOut[0] << endl;
-        }
     }
 
     vector<array<vector<double>, 2>> data;
@@ -39,7 +35,7 @@ int main()
         data.push_back(move(tmp));
     }
 
-    double error = net.train(50000, 0.0001, data);
+    double error = net.train(50000, 0.0001, data, 8);
 
     cout << "Error: " << error << endl;
 
