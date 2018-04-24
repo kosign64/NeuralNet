@@ -1,5 +1,6 @@
 #include "neuralnet.h"
 #include <vector>
+#include <array>
 #include <iostream>
 #include <cmath>
 
@@ -30,7 +31,15 @@ int main()
         }
     }
 
-    double error = net.train(500000, 0.0001, inputs, outputs);
+    vector<array<vector<double>, 2>> data;
+
+    for(size_t i = 0; i < inputs.size(); ++i)
+    {
+        array<vector<double>, 2> tmp{inputs[i], outputs[i]};
+        data.push_back(move(tmp));
+    }
+
+    double error = net.train(50000, 0.0001, data);
 
     cout << "Error: " << error << endl;
 

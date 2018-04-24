@@ -6,6 +6,7 @@
 #include <sstream>
 #include <ctime>
 #include <clocale>
+#include <algorithm>
 
 #ifdef WITH_TBB
 #include <tbb/tbb.h>
@@ -145,20 +146,19 @@ void NeuralNet::getResults(vector<double> &resultVals) const
     }
 }
 
-double NeuralNet::train(size_t iterations, double error, const vector< vector<double> > &inputs,
-                        const vector< vector<double> > &outputs)
+double NeuralNet::train(size_t iterations, double error,
+                        vector<array<vector<double>, 2>> &trainData)
 {
-    assert(inputs.size() == outputs.size());
-
-    const size_t size = inputs.size();
+    const size_t size = trainData.size();
     double averageError = 0.0;
     for(size_t i = 0; (i < iterations); ++i)
     {
+        random_shuffle(trainData.begin(), trainData.end());
         averageError = 0;
         for(size_t n = 0; n < size; ++n)
         {
-            feedForward(inputs[n]);
-            backProp(outputs[n]);
+            feedForward(trainData[n][0]);
+            backProp(trainData[n][1]);
             averageError += m_error;
         }
         if((i % 30) == 0)

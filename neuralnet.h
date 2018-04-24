@@ -2,6 +2,7 @@
 #define NEURALNET_H
 
 #include <vector>
+#include <array>
 #include "neuron.h"
 
 // May increase performance for large networks
@@ -23,8 +24,8 @@ public:
     void feedForward(const vector<double> &inputVals);
     void backProp(const vector<double> &targetVals);
     void getResults(vector<double> &resultVals) const;
-    double train(size_t iterations, double error, const vector< vector<double> > &inputs,
-                 const vector< vector<double> > &outputs);
+    double train(size_t iterations, double error,
+                 vector<array<vector<double>, 2>> &trainData);
 
     void saveNet(const char *filename) const;
     void loadNet(const char *filename);
