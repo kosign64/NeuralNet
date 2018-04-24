@@ -6,12 +6,12 @@
 double Neuron::eta = 0.15;
 double Neuron::alpha = 0.5;
 
-Neuron::Neuron(size_t numOutputs, size_t myIndex) : m_myIndex(myIndex)
+Neuron::Neuron(size_t numOutputs, size_t index) : index_(index)
 {
     for(size_t c = 0; c < numOutputs; ++c)
     {
-        m_outputWeights.push_back(Connection());
-        m_outputWeights.back().weight = randomWeight() / 20;
+        outputWeights_.push_back(Connection());
+        outputWeights_.back().weight = randomWeight() / 20;
     }
 }
 
@@ -23,10 +23,10 @@ void Neuron::feedForward(const Layer &prevLayer)
     const size_t size = prevLayer.size();
     for(size_t n = 0; n < size; ++n)
     {
-        sum += prevLayer[n].getOutputVal() * prevLayer[n].m_outputWeights[m_myIndex].weight;
+        sum += prevLayer[n].getOutputVal() * prevLayer[n].outputWeights_[index_].weight;
     }
 
-    m_outputVal = transferFunction(sum);
+    outputVal_ = transferFunction(sum);
 }
 
 double Neuron::transferFunction(double sum)
@@ -41,14 +41,14 @@ double Neuron::transferFunctionDerivative(double x)
 
 void Neuron::calcOutputGradient(double targetVal)
 {
-    double delta = targetVal - m_outputVal;
-    m_gradient = delta * transferFunctionDerivative(m_outputVal);
+    double delta = targetVal - outputVal_;
+    gradient_ = delta * transferFunctionDerivative(outputVal_);
 }
 
 void Neuron::calcHiddenGradients(const Layer &nextLayer)
 {
     double dow = sumDow(nextLayer);
-    m_gradient = dow * transferFunctionDerivative(m_outputVal);
+    gradient_ = dow * transferFunctionDerivative(outputVal_);
 }
 
 double Neuron::sumDow(const Layer &nextLayer) const
@@ -57,7 +57,7 @@ double Neuron::sumDow(const Layer &nextLayer) const
 
     for(size_t n = 0; n < nextLayer.size() - 1; ++n)
     {
-        sum += m_outputWeights[n].weight * nextLayer[n].m_gradient;
+        sum += outputWeights_[n].weight * nextLayer[n].gradient_;
     }
 
     return sum;
@@ -68,10 +68,10 @@ void Neuron::calcInputWeightsUpdates(Layer &prevLayer, bool update)
     for(size_t n = 0; n < prevLayer.size(); ++n)
     {
         Neuron &neuron = prevLayer[n];
-        vector<double> &corrections = neuron.m_outputWeights[m_myIndex].corrections;
-        double oldDeltaWeight = neuron.m_outputWeights[m_myIndex].deltaWeight;
+        vector<double> &corrections = neuron.outputWeights_[index_].corrections;
+        double oldDeltaWeight = neuron.outputWeights_[index_].deltaWeight;
 
-        double newDeltaWeight = eta * neuron.m_outputVal * m_gradient +
+        double newDeltaWeight = eta * neuron.outputVal_ * gradient_ +
                 alpha * oldDeltaWeight;
         corrections.push_back(newDeltaWeight);
         if(update)
@@ -82,8 +82,8 @@ void Neuron::calcInputWeightsUpdates(Layer &prevLayer, bool update)
                 sum += c;
             }
             newDeltaWeight = sum / corrections.size();
-            neuron.m_outputWeights[m_myIndex].deltaWeight = newDeltaWeight;
-            neuron.m_outputWeights[m_myIndex].weight += newDeltaWeight;
+            neuron.outputWeights_[index_].deltaWeight = newDeltaWeight;
+            neuron.outputWeights_[index_].weight += newDeltaWeight;
             corrections.clear();
         }
     }
@@ -93,10 +93,10 @@ void Neuron::calcInputWeightsUpdates(Layer &prevLayer, bool update)
 
 void Neuron::setWeights(const vector <double> &weights)
 {
-    assert(weights.size() == m_outputWeights.size());
+    assert(weights.size() == outputWeights_.size());
 
-    for(size_t i = 0; i < m_outputWeights.size(); ++i)
+    for(size_t i = 0; i < outputWeights_.size(); ++i)
     {
-        m_outputWeights[i].weight = weights[i];
+        outputWeights_[i].weight = weights[i];
     }
 }
