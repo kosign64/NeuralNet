@@ -158,7 +158,7 @@ double NeuralNet::train(size_t iterations, double error,
         for(size_t n = 0; n < size; ++n)
         {
             bool update = false;
-            if(((n % batchSize) == 0) || (n == size - 1))
+            if((n != 0) && (((n % batchSize) == 0) || (n == size - 1)))
             {
                 update = true;
             }

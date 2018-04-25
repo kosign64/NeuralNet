@@ -35,7 +35,7 @@ int main()
         data.push_back(move(tmp));
     }
 
-    double error = net.train(50000, 0.0001, data, 8);
+    double error = net.train(100000, 0.018, data, 8);
 
     cout << "Error: " << error << endl;
 
