@@ -7,6 +7,7 @@
 #include <ctime>
 #include <clocale>
 #include <algorithm>
+#include <iomanip>
 
 #ifdef WITH_TBB
 #include <tbb/tbb.h>
@@ -168,8 +169,9 @@ double NeuralNet::train(size_t iterations, double error,
         }
         if((i % 30) == 0)
         {
-            cout << "Iteration: " << i << " Average Error sum: " << averageError <<
-                    " Average Error: " << (averageError / size) << endl;
+            cout << "Iteration: " << left << setw(7) << i <<
+                    " Average Error sum: " << setw(7) << left << averageError <<
+                    " Average Error: " << setw(9) << (averageError / size) << endl;
         }
         if((averageError / size) < error) break;
     }

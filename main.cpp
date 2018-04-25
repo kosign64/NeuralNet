@@ -49,7 +49,10 @@ int main()
     net.feedForward(input);
     net.getResults(output);
 
-    cout << sin(angle * M_PI / 180.) << " " << output[0] << endl;
+    double desired = sin(angle * M_PI / 180.);
+
+    cout << "Desired: " << desired << " Result:" << output[0] << " Error:" <<
+            abs(desired - output[0]) << endl;
 
     net.saveNet("net.net");
 
